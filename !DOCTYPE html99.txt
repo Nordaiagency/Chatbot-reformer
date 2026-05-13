@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reformer Viborg Chatbot</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+    }
+  </style>
+</head>
+
+<body>
+
+<script type="module">
+  import Chatbot from "https://cdn.jsdelivr.net/npm/flowise-embed/dist/web.js"
+
+  Chatbot.init({
+    chatflowid: "f3b05a25-d3ab-4f1f-8d29-117e7e3410ac",
+    apiHost: "http://178.104.51.5:3000",
+
+    theme: {
+      button: {
+        backgroundColor: "#b59c8c",
+        right: 20,
+        bottom: 20,
+        size: 60,
+        iconColor: "white",
+        customIconSrc: "https://i.imgur.com/nWde3co.png"
+      },
+
+      chatWindow: {
+        welcomeMessage: "Hej 👋 Hvordan kan jeg hjælpe dig?",
+        backgroundColor: "#ffffff",
+        height: 650,
+        width: 400,
+        fontSize: 16,
+
+        poweredByTextColor: "#ffffff",
+
+        botMessage: {
+          backgroundColor: "#f2eee9",
+          textColor: "#333333"
+        },
+
+        userMessage: {
+          backgroundColor: "#b59c8c",
+          textColor: "#ffffff"
+        },
+
+        textInput: {
+          placeholder: "Skriv dit spørgsmål...",
+          backgroundColor: "#ffffff",
+          textColor: "#333333",
+          sendButtonColor: "#b59c8c"
+        }
+      }
+    }
+  })
+</script>
+
+</body>
+</html>
