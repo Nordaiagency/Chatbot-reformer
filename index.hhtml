@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reformer Viborg Chatbot</title>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f7f4f1;
+      font-family: Arial, sans-serif;
+    }
+
+    .nordai-footer {
+      position: fixed;
+      right: 95px;
+      bottom: 22px;
+      z-index: 999999;
+      font-size: 13px;
+      color: #8b7a70;
+    }
+
+    .nordai-footer a {
+      color: #b59c8c;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .nordai-footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="nordai-footer">
+  Built by 
+  <a href="https://nordaiagency.dk" target="_blank">
+    NordAI Agency
+  </a>
+</div>
+
+<script type="module">
+  import Chatbot from "https://cdn.jsdelivr.net/npm/flowise-embed/dist/web.js"
+
+  Chatbot.init({
+    chatflowid: "f3b05a25-d3ab-4f1f-8d29-117e7e3410ac",
+
+    apiHost: "http://178.104.51.5:3000",
+
+    theme: {
+      button: {
+        backgroundColor: "#b59c8c",
+        right: 20,
+        bottom: 20,
+        size: 62,
+        iconColor: "#ffffff",
+        customIconSrc: "https://i.imgur.com/nWde3co.png"
+      },
+
+      tooltip: {
+        showTooltip: true,
+        tooltipMessage: "Chat med os 👋",
+        tooltipBackgroundColor: "#b59c8c",
+        tooltipTextColor: "#ffffff"
+      },
+
+      chatWindow: {
+        title: "Reformer Viborg",
+        titleAvatarSrc: "https://i.imgur.com/nWde3co.png",
+
+        welcomeMessage: "Hej 👋 Hvordan kan jeg hjælpe dig?",
+
+        backgroundColor: "#ffffff",
+
+        height: 700,
+        width: 420,
+
+        fontSize: 16,
+
+        starterPrompts: [
+          "Hvad koster medlemskab?",
+          "Hvordan booker jeg?",
+          "Hvilke hold tilbyder I?"
+        ],
+
+        clearChatOnReload: false,
+
+        botMessage: {
+          backgroundColor: "#f2eee9",
+          textColor: "#333333",
+          showAvatar: true,
+          avatarSrc: "https://i.imgur.com/nWde3co.png"
+        },
+
+        userMessage: {
+          backgroundColor: "#b59c8c",
+          textColor: "#ffffff",
+          showAvatar: false
+        },
+
+        textInput: {
+          placeholder: "Skriv dit spørgsmål...",
+          backgroundColor: "#ffffff",
+          textColor: "#333333",
+          sendButtonColor: "#b59c8c"
+        }
+      }
+    }
+  })
+</script>
+
+</body>
+</html>
