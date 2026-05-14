@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reformer Viborg Chatbot</title>
+
+  <style>
+    :root {
+      --brand: #b59c8c;
+      --brand-dark: #9f8778;
+      --bot-bg: #f2eee9;
+      --text: #333333;
+      --page-bg: #f7f4f1;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--page-bg);
+    }
+
+    #chat-toggle {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      width: 64px;
+      height: 64px;
+      border: none;
+      border-radius: 50%;
+      background: var(--brand);
+      color: #ffffff;
+      font-size: 34px;
+      line-height: 1;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #chat-container {
+      position: fixed;
+      right: 24px;
+      bottom: 104px;
+      width: 420px;
+      height: 700px;
+      max-height: calc(100vh - 130px);
+      background: #ffffff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.2);
+      z-index: 99999;
+      display: none;
+      flex-direction: column;
+    }
+
+    #chat-header {
+      height: 56px;
+      background: var(--brand);
+      color: #ffffff;
+      padding: 0 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 17px;
+    }
+
+    .header-left img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #ffffff;
+      object-fit: cover;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 24px;
+      font-weight: 400;
+    }
+
+    .header-actions button {
+      border: none;
+      background: transparent;
+      color: #ffffff;
+      cursor: pointer;
+      font-size: 24px;
+      padding: 0;
+      line-height: 1;
+    }
+
+    #chat-messages {
+      flex: 1;
+      padding: 20px 20px 10px;
+      overflow-y: auto;
+      background: #ffffff;
+    }
+
+    .message {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      align-items: flex-start;
+    }
+
+    .message.user {
+      justify-content: flex-end;
+    }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #ffffff;
+      border: 3px solid var(--brand);
+      flex-shrink: 0;
+    }
+
+    .bubble {
+      max-width: 78%;
+      padding: 12px 16px;
+      border-radius: 6px;
+      color: var(--text);
+      background: var(--bot-bg);
+      font-size: 16px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .message.user .bubble {
+      background: var(--brand);
+      color: #ffffff;
+      border-radius: 6px;
+    }
+
+    .typing {
+      opacity: 0.75;
+    }
+
+    #input-area {
+      padding: 14px 20px 8px;
+      background: #ffffff;
+    }
+
+    #input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid #e7e1dc;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+      border-radius: 6px;
+      padding: 9px 12px;
+      background: #ffffff;
+    }
+
+    #chat-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      color: var(--text);
+      min-width: 0;
+      padding: 8px 4px;
+    }
+
+    #chat-input::placeholder {
+      color: #9ca3af;
+    }
+
+    #send-button {
+      border: none;
+      background: transparent;
+      color: var(--brand);
+      font-size: 30px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0;
+    }
+
+    #send-button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    #footer {
+      text-align: center;
+      padding: 8px 0 14px;
+      background: #ffffff;
+      color: #9a877b;
+      font-size: 13px;
+    }
+
+    #footer a {
+      color: var(--brand);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    #footer a:hover {
+      text-decoration: underline;
+    }
+
+    .starter-prompts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 12px 0 18px;
+      justify-content: flex-start;
+      align-items: flex-start;
+    }
+
+    .starter-prompts button {
+      border: none;
+      background: #f2f2f2;
+      color: #333333;
+      border-radius: 999px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-size: 15px;
+      text-align: left;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      transition: 0.2s ease;
+    }
+
+    .starter-prompts button:hover {
+      background: #e8e8e8;
+    }
+
+    @media (max-width: 520px) {
+      #chat-container {
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        max-height: 100vh;
+        border-radius: 0;
+      }
+
+      #chat-toggle {
+        right: 18px;
+        bottom: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <button id="chat-toggle" aria-label="Åbn chat">⌄</button>
+
+  <section id="chat-container" aria-label="Reformer Viborg chatbot">
+    <header id="chat-header">
+      <div class="header-left">
+        <img src="https://i.imgur.com/nWde3co.png" alt="Reformer Viborg logo" />
+        <span>Reformer Viborg</span>
+      </div>
+
+      <div class="header-actions">
+        <button id="restart-button" aria-label="Genstart chat">↻</button>
+        <button id="close-button" aria-label="Luk chat">×</button>
+      </div>
+    </header>
+
+    <main id="chat-messages"></main>
+
+    <div class="starter-prompts" id="bottom-prompts">
+      <button type="button">Hvad koster medlemskab?</button>
+      <button type="button">Hvordan booker jeg?</button>
+      <button type="button">Hvilke hold tilbyder I?</button>
+    </div>
+
+    <div id="input-area">
+      <div id="input-wrap">
+        <input id="chat-input" type="text" placeholder="Skriv dit spørgsmål..." autocomplete="off" />
+        <button id="send-button" aria-label="Send besked">➤</button>
+      </div>
+    </div>
+
+    <footer id="footer">
+      Built by <a href="https://nordaiagency.dk" target="_blank" rel="noopener noreferrer">NordAI Agency</a>
+    </footer>
+  </section>
+
+  <script>
+    const FLOW_ID = "f3b05a25-d3ab-4f1f-8d29-117e7e3410ac";
+
+    /*
+      GitHub Pages bruger HTTPS. Derfor skal API_BASE også være HTTPS.
+      Når din proxy/SSL er klar, skal denne URL virke:
+      https://chatbot.nordaiagency.dk
+
+      Midlertidigt virker http://178.104.51.5:3000 kun på ikke-HTTPS sider.
+    */
+    const API_BASE = "https://flip-poison-embryane-carb.trycloudflare.com";
+    const API_URL = `${API_BASE}/api/v1/prediction/${FLOW_ID}`;
+
+    const logo = "https://i.imgur.com/nWde3co.png";
+
+    const chatToggle = document.getElementById("chat-toggle");
+    const chatContainer = document.getElementById("chat-container");
+    const closeButton = document.getElementById("close-button");
+    const restartButton = document.getElementById("restart-button");
+    const messages = document.getElementById("chat-messages");
+    const input = document.getElementById("chat-input");
+    const sendButton = document.getElementById("send-button");
+
+    function toggleChat() {
+      const isOpen = chatContainer.style.display === "flex";
+      chatContainer.style.display = isOpen ? "none" : "flex";
+      chatToggle.textContent = isOpen ? "⌄" : "×";
+
+      if (!isOpen) {
+        input.focus();
+      }
+    }
+
+    function addMessage(text, role = "bot") {
+      const row = document.createElement("div");
+      row.className = `message ${role}`;
+
+      if (role === "bot") {
+        row.innerHTML = `
+          <img class="avatar" src="${logo}" alt="Bot avatar" />
+          <div class="bubble">${escapeHtml(text)}</div>
+        `;
+      } else {
+        row.innerHTML = `<div class="bubble">${escapeHtml(text)}</div>`;
+      }
+
+      messages.appendChild(row);
+      messages.scrollTop = messages.scrollHeight;
+      return row;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function resetChat() {
+      messages.innerHTML = "";
+      addMessage("Hej 👋 Hvordan kan jeg hjælpe dig?", "bot");
+
+
+    }
+
+    function extractAnswer(data) {
+      return (
+        data?.text ||
+        data?.answer ||
+        data?.result ||
+        data?.output ||
+        data?.message ||
+        "Jeg kunne ikke finde et svar lige nu."
+      );
+    }
+
+    async function sendMessage() {
+      const question = input.value.trim();
+      if (!question) return;
+
+      const starters = document.querySelector(".starter-prompts");
+      if (starters) starters.remove();
+
+      addMessage(question, "user");
+      input.value = "";
+      sendButton.disabled = true;
+
+      const typing = addMessage("Skriver...", "bot");
+      typing.querySelector(".bubble").classList.add("typing");
+
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            question,
+            overrideConfig: {
+              sessionId: "reformer-viborg-demo"
+            }
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        typing.remove();
+        addMessage(extractAnswer(data), "bot");
+      } catch (error) {
+        typing.remove();
+        addMessage(
+          "Jeg kan ikke få forbindelse til chatbotten lige nu. Prøv igen om lidt.",
+          "bot"
+        );
+        console.error("Chatbot error:", error);
+      } finally {
+        sendButton.disabled = false;
+        input.focus();
+      }
+    }
+
+    chatToggle.addEventListener("click", toggleChat);
+    closeButton.addEventListener("click", toggleChat);
+    restartButton.addEventListener("click", resetChat);
+    sendButton.addEventListener("click", sendMessage);
+
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        sendMessage();
+      }
+    });
+
+
+    document.querySelectorAll("#bottom-prompts button").forEach((button) => {
+      button.addEventListener("click", () => {
+        input.value = button.textContent;
+        sendMessage();
+      });
+    });
+
+    resetChat();
+  </script>
+</body>
+</html>
